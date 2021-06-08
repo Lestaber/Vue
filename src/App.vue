@@ -1,29 +1,28 @@
 <template>
   <div id="app">
-    <div class="calc">
-      <div class="calc__title">Calculator</div>
-      <div class="calc__error" v-if="error">
-        Ошибка!<br />
-        {{ error }}
-      </div>
-      <div class="calc__computed">
-        <div class="operands">
-          <input v-model.number="op1" />
-          <input v-model.number="op2" />
-          =
+    <div class="wrapper">
+      <header>
+        <h1 class="title">
+          My personal coasts
+          <div class="title__links">
+            <router-link to="/dashboard"> Dashboard </router-link>
+            <router-link to="/about"> About </router-link>
+            <router-link to="/page404"> 404</router-link>
+          </div>
+        </h1>
+        <div class="quick__links">
+          <router-link to="/add/payment/Food?value=200">Food +200</router-link>
+          <router-link to="/dashboard/add/Navigation?value=50"
+            >Navigation +50</router-link
+          >
+          <router-link to="/dashboard/add/Entertaiment?value=2000"
+            >Entertaiment +2000</router-link
+          >
         </div>
-        <span>{{ result }}</span>
-      </div>
-      <div class="func">
-        <button
-          v-for="(btn, i) in buttons"
-          :key="i"
-          @click="calc(btn)"
-          class="func__btn"
-        >
-          {{ btn }}
-        </button>
-      </div>
+      </header>
+      <main>
+        <router-view />
+      </main>
     </div>
   </div>
 </template>
@@ -33,116 +32,62 @@ export default {
   name: "App",
   data() {
     return {
-      op1: "",
-      op2: "",
-      result: 0,
-      error: "",
-      buttons: ["+", "-", "*", "/", "**", "%"],
+      page: "",
     };
   },
-  methods: {
-    divide() {
-      const { op1, op2 } = this;
-      if (op2 === 0) {
-        (this.error = "Делить на 0 нельзя!"), (this.result = "");
-      } else {
-        this.result = (op1 / op2).toFixed(4).replace(/\.?0+$/, "");
-      }
-    },
-    divWithRem() {
-      const { op1, op2 } = this;
-      if (op2 === 0) {
-        (this.error = "Делить на 0 нельзя!"), (this.result = "");
-      } else {
-        this.result = parseInt(op1 / op2);
-      }
-    },
-    calc(func) {
-      switch (func) {
-        case "+":
-          this.error = "";
-          this.result = this.op1 + this.op2;
-          break;
-        case "-":
-          this.error = "";
-          this.result = this.op1 - this.op2;
-          break;
-        case "*":
-          this.error = "";
-          this.result = this.op1 * this.op2;
-          break;
-        case "/":
-          this.divide();
-          break;
-        case "**": // Возведение в степень, где op1-число, op2-степень.
-          this.error = "";
-          this.result = Math.pow(this.op1, this.op2);
-          break;
-        case "%": // Деление с остатком.
-          this.divWithRem();
-          break;
-        default:
-          break;
-      }
-    },
+  mounted() {
+    this.$store.dispatch("FETCH_DATA");
+  },
+  created() {
+    this.$router.push({ name: "/" });
   },
 };
 </script>
 
 <style lang="scss">
 #app {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100vh;
-  font-size: 20px;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: left;
+  color: #2c3e50;
+  margin-top: 50px;
+  padding: 0 100px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.calc {
-  width: 350px;
+button {
+  padding: 8px 20px;
+  background: #06a79b;
+  color: aliceblue;
+  border: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+}
 
-  &__title {
-    font-size: 30px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
+.title__links {
+  display: flex;
+  width: 200px;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+a {
+  font-size: 18px;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    color: #06a79b;
   }
+}
 
-  &__error {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #e21111;
-    margin: 20px 0;
-  }
-
-  &__computed {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    & input {
-      width: 100px;
-      font-size: inherit;
-      margin-right: 16px;
-    }
-  }
-
-  .func {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-
-    &__btn {
-      width: 40px;
-      height: 40px;
-      background: #77f3c4;
-      border: 1px solid #8d8787;
-      font-size: inherit;
-    }
-  }
+a.router-link-exact-active {
+  font-size: 18px;
+  text-decoration: none;
+  // color: inherit;
+  color: #06a79b;
 }
 </style>

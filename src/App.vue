@@ -1,148 +1,148 @@
 <template>
   <div id="app">
-    <div class="calc">
-      <div class="calc__title">Calculator</div>
-      <div class="calc__error" v-if="error">
-        Ошибка!<br />
-        {{ error }}
-      </div>
-      <div class="calc__computed">
-        <div class="operands">
-          <input v-model.number="op1" />
-          <input v-model.number="op2" />
-          =
-        </div>
-        <span>{{ result }}</span>
-      </div>
-      <div class="func">
-        <button
-          v-for="(btn, i) in buttons"
-          :key="i"
-          @click="calc(btn)"
-          class="func__btn"
-        >
-          {{ btn }}
-        </button>
-      </div>
-    </div>
+    <v-app>
+      <v-app-bar app flat>
+        <v-btn plain :ripple="false" to="/dashboard">Dashboard</v-btn>
+        <v-btn plain :ripple="false" to="/about">About</v-btn>
+      </v-app-bar>
+      <v-main>
+        <router-view />
+      </v-main>
+    </v-app>
+    <!-- <div class="wrapper">
+      <header>
+        <h1 class="title">
+          My personal coasts
+          <div class="title__links">
+            <router-link to="/dashboard"> Dashboard </router-link>
+            <router-link to="/about"> About </router-link>
+            <router-link to="/page404"> 404 </router-link>
+          </div>
+        </h1>
+      </header>
+      <main>
+        <ModalWindow
+          v-if="modalWindow"
+          :name="modalWindow"
+          :headerName="modalHeader"
+          :modalSettings="modalSettings"
+          @close="onHide"
+        />
+        <router-view />
+      </main>
+    </div> -->
   </div>
 </template>
 
 <script>
+import { mapMutations } from "vuex";
+
 export default {
   name: "App",
+  components: {
+    // ModalWindow: () =>
+    //   import(/* webpackChunkName: "Modal"*/ "./components/ModalWindow"),
+  },
   data() {
     return {
-      op1: "",
-      op2: "",
-      result: 0,
-      error: "",
-      buttons: ["+", "-", "*", "/", "**", "%"],
+      page: "",
+      modalWindow: "",
+      modalHeader: "",
+      modalSettings: {},
+      showModal: true,
     };
   },
+  created() {
+    this.$router.push({ name: "/" });
+  },
+  mounted() {
+    this.$store.dispatch("FETCH_DATA");
+
+    this.$modal.EventBus.$on("show", this.onShow);
+    this.$modal.EventBus.$on("hide", this.onHide);
+  },
+  beforeDestroy() {
+    this.$modal.EventBus.$off("show", this.onShow);
+    this.$modal.EventBus.$off("hide", this.onHide);
+  },
   methods: {
-    divide() {
-      const { op1, op2 } = this;
-      if (op2 === 0) {
-        (this.error = "Делить на 0 нельзя!"), (this.result = "");
-      } else {
-        this.result = (op1 / op2).toFixed(4).replace(/\.?0+$/, "");
-      }
+    // onclick() {
+    //   this.settings = {
+    //     name: "payment",
+    //     headerName: "Add payment",
+    //   };
+    // },
+    ...mapMutations(["setPaymentListData"]),
+    actionEmit() {
+      this.showModal = false;
     },
-    divWithRem() {
-      const { op1, op2 } = this;
-      if (op2 === 0) {
-        (this.error = "Делить на 0 нельзя!"), (this.result = "");
-      } else {
-        this.result = parseInt(op1 / op2);
-      }
+    addPayment(data) {
+      this.$store.commit("addDataToPaymentList", data);
     },
-    calc(func) {
-      switch (func) {
-        case "+":
-          this.error = "";
-          this.result = this.op1 + this.op2;
-          break;
-        case "-":
-          this.error = "";
-          this.result = this.op1 - this.op2;
-          break;
-        case "*":
-          this.error = "";
-          this.result = this.op1 * this.op2;
-          break;
-        case "/":
-          this.divide();
-          break;
-        case "**": // Возведение в степень, где op1-число, op2-степень.
-          this.error = "";
-          this.result = Math.pow(this.op1, this.op2);
-          break;
-        case "%": // Деление с остатком.
-          this.divWithRem();
-          break;
-        default:
-          break;
-      }
+    goTopage(pageName) {
+      this.$router.push({
+        name: pageName,
+      });
+      console.log(pageName);
+    },
+    onShow(data) {
+      this.ModalWindoW = data.name;
+      this.modalHeader = data.headerName;
+      this.modalSettings = data.modalSettings;
+    },
+    onHide() {
+      this.ModalWindoW = "";
+      this.modalHeader = "";
+      this.modalSettings = {};
     },
   },
 };
 </script>
 
 <style lang="scss">
-#app {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100vh;
-  font-size: 20px;
-}
+// #app {
+//   font-family: Avenir, Helvetica, Arial, sans-serif;
+//   -webkit-font-smoothing: antialiased;
+//   -moz-osx-font-smoothing: grayscale;
+//   text-align: left;
+//   color: #2c3e50;
+//   margin-top: 50px;
+//   padding: 0 100px;
+//   max-width: 1000px;
+//   margin: 0 auto;
+//   padding-top: 30px;
+// }
 
-.calc {
-  width: 350px;
+// button {
+//   padding: 8px 20px;
+//   background: #06a79b;
+//   color: aliceblue;
+//   border: none;
+//   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+//   border-radius: 3px;
+//   cursor: pointer;
+// }
 
-  &__title {
-    font-size: 30px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
-  }
+// .title__links {
+//   display: flex;
+//   width: 300px;
+//   justify-content: space-between;
+//   margin-top: 20px;
+// }
 
-  &__error {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #e21111;
-    margin: 20px 0;
-  }
+// a {
+//   font-size: 18px;
+//   text-decoration: none;
+//   color: inherit;
 
-  &__computed {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+//   &:hover {
+//     color: #06a79b;
+//   }
+// }
 
-    & input {
-      width: 100px;
-      font-size: inherit;
-      margin-right: 16px;
-    }
-  }
-
-  .func {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-
-    &__btn {
-      width: 40px;
-      height: 40px;
-      background: #77f3c4;
-      border: 1px solid #8d8787;
-      font-size: inherit;
-    }
-  }
-}
+// a.router-link-exact-active {
+//   font-size: 18px;
+//   text-decoration: none;
+//   color: #06a79b;
+// }
 </style>
